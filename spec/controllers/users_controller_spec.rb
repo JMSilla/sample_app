@@ -12,46 +12,65 @@ describe UsersController do
         flash[:notice].should =~ /sign in/i
       end
     end
-  end
-
-  describe "for signed-in users" do
-    before(:each) do
-      @user = test_sign_in(Factory(:user))
-      second = Factory(:user, :name => "Bob", :email => "another@example.com")
-      third = Factory(:user, :name => "Ben", :email => "another@example.net")
-
-      @users = [@user, second, third]
-      30.times do
-        @users << Factory(:user, :name => Factory.next(:name),
-                          :email => Factory.next(:email))
+    
+    describe "for signed-in users" do
+      before(:each) do
+        @user = test_sign_in(Factory(:user))
+        second = Factory(:user, :name => "Bob", :email => "another@example.com")
+        third = Factory(:user, :name => "Ben", :email => "another@example.net")
+        
+        @users = [@user, second, third]
+        30.times do
+          @users << Factory(:user, :name => Factory.next(:name),
+                            :email => Factory.next(:email))
+        end
+      end
+      
+      it "should be successful" do
+        get :index
+        response.should be_success
+      end
+      
+      it "should have the right title" do
+        get :index
+        response.should have_selector('title', :content => "All users")
+      end
+      
+      it "should have an element for each user" do
+        get :index
+        @users[0..2].each do |user|
+          response.should have_selector("li", :content => user.name)
+        end
+      end
+      
+      it "should paginate users" do
+        get :index
+        response.should have_selector("div.pagination")
+        response.should have_selector("span.disabled", :content => "Previous")
+        response.should have_selector("a", :href => "/users?page=2",
+                                      :content => "2")
+        response.should have_selector("a", :href => "/users?page=2",
+                                      :content => "Next")
       end
     end
 
-    it "should be successful" do
-      get :index
-      response.should be_success
-    end
-
-    it "should have the right title" do
-      get :index
-      response.should have_selector('title', :content => "All users")
-    end
-
-    it "should have an element for each user" do
-      get :index
-      @users[0..2].each do |user|
-        response.should have_selector("li", :content => user.name)
+    describe "delete links" do
+      before(:each) do
+        @user = Factory(:user)
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
       end
-    end
+      
+      it "should show delete links for admin users" do
+        test_sign_in(@admin)
+        get :index
+        response.should have_selector("a", :content => "delete")
+      end
 
-    it "should paginate users" do
-      get :index
-      response.should have_selector("div.pagination")
-      response.should have_selector("span.disabled", :content => "Previous")
-      response.should have_selector("a", :href => "/users?page=2",
-                                    :content => "2")
-      response.should have_selector("a", :href => "/users?page=2",
-                                    :content => "Next")
+      it "should not show delete links for non-admin users" do
+        test_sign_in(@user)
+        get :index
+        response.should_not have_selector("a", :content => "delete")
+      end
     end
   end
 
@@ -116,6 +135,17 @@ describe UsersController do
       get :new
       response.should have_selector("input[name='user[password_confirmation]'][type='password']")
     end
+
+    describe "for signed-in users" do
+      before(:each) do
+        @user = test_sign_in(Factory(:user))
+      end
+
+      it "should redirect to root url" do
+        get :new
+        response.should redirect_to(root_path)
+      end
+    end
   end
 
   describe "POST 'create'" do
@@ -167,6 +197,17 @@ describe UsersController do
       it "should sign the user in" do
         post :create, :user => @attr
         controller.should be_signed_in
+      end
+    end
+
+    describe "for signed-in users" do
+      before(:each) do
+        @user = test_sign_in(Factory(:user))
+      end
+
+      it "should redirect to root path" do
+        post :create, :user => @attr
+        response.should redirect_to(root_path)
       end
     end
   end
@@ -300,8 +341,8 @@ describe UsersController do
 
     describe "as an admin user" do
       before(:each) do
-        admin = Factory(:user, :email => "admin@example.com", :admin => true)
-        test_sign_in(admin)
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(@admin)
       end
 
       it "should destroy the user" do
@@ -313,6 +354,19 @@ describe UsersController do
       it "should redirect to the users page" do
         delete :destroy, :id => @user
         response.should redirect_to(users_path)
+      end
+      
+      describe "when deleting the signed-in admin user" do
+        it "should not delete the signed-in admin user" do
+          lambda do
+            delete :destroy, :id => @admin
+          end.should change(User, :count).by(0)
+        end
+        
+        it "should redirect to the users page" do
+          delete :destroy, :id => @admin
+          response.should redirect_to(users_path)
+        end
       end
     end
   end
