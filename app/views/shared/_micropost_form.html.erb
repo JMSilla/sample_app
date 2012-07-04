@@ -1,5 +1,11 @@
+<% content_for :javascript do %>
+<%= javascript_include_tag 'micropost' %>
+<% end %>
+
 <%= form_for @micropost do |f| %>
 <%= render 'shared/error_messages', :object => f.object %>
+<div id="counter" class="counter"></div>
+<br/>
 <div class="field">
   <%= f.text_area :content %>
 </div>
