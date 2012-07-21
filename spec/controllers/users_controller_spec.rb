@@ -138,6 +138,20 @@ describe UsersController do
                                       :content => "Next")
       end
     end
+
+    describe "microposts delete links" do
+      before(:each) do
+        @user2 = Factory(:user, :name => 'user2', :email => 'prueba@prueba.com')
+        Factory(:micropost, :user => @user2)
+        test_sign_in(@user)
+      end
+      
+      it "should not show delete links for other user's microposts" do
+        get :show, :id => @user2
+        response.should have_selector("div.micropost")
+        response.should_not have_selector("div.delete")
+      end
+    end
   end
 
   describe "GET 'new'" do
