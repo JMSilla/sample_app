@@ -197,6 +197,8 @@ ul.microposts {
     margin: 0;
     padding: 0;
     list-style-type: none;
+    display: table;
+    width: 100%;
 }
 
 ul.microposts li {
@@ -258,13 +260,4 @@ form.new_micropost textarea {
 
 .counter {
     float: left;
-}
-
-ul.all_microposts_user li {
-    width: 100%;
-}
-
-
-ul.all_microposts_user li div {
-    width: 100%;
 }
