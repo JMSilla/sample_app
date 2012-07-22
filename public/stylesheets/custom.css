@@ -259,3 +259,12 @@ form.new_micropost textarea {
 .counter {
     float: left;
 }
+
+ul.all_microposts_user li {
+    width: 100%;
+}
+
+
+ul.all_microposts_user li div {
+    width: 100%;
+}

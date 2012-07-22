@@ -89,4 +89,50 @@ describe MicropostsController do
       end
     end
   end
+
+  describe "GET 'users/index'" do
+    before(:each) do
+      @user = Factory(:user)
+      @mp1 = Factory(:micropost, :user => @user)
+      @mp2 = Factory(:micropost, :user => @user, :content => 'Prueba aaa')
+    end
+
+    it "should be valid" do
+      get :index, :user_id => @user
+      response.should be_success
+    end
+    
+    it "should render the microposts index page" do
+      get :index, :user_id => @user
+      response.should render_template('microposts/index')
+    end
+
+    it "should show the user's microposts" do
+      get :index, :user_id => @user
+      response.should have_selector("div.micropost",
+                                    :content => @mp1.content)
+      response.should have_selector("div.micropost",
+                                    :content => @mp2.content)
+    end
+    
+    describe "microposts pagination" do
+      before(:each) do
+        30.times do
+          Factory(:micropost, :user => @user)
+        end
+      end
+      
+      it "should paginate the user's microposts" do
+        get :index, :user_id => @user
+        response.should have_selector("div.pagination")
+        response.should have_selector("span.disabled", :content => "Previous")
+        response.should have_selector("a",
+                                      :content => '2',
+                                      :href => "#{user_microposts_path(@user)}?page=2")
+        response.should have_selector("a",
+                                      :content => 'Next',
+                                      :href => "#{user_microposts_path(@user)}?page=2")
+      end
+    end
+  end
 end

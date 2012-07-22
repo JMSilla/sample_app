@@ -1,0 +1,16 @@
+<table class="profile" summary="Profile information">
+  <tr>
+    <td class="microposts">
+      <h1>
+	<%= gravatar_for @user %>
+	<%= @user.name %>
+      </h1>
+      <% unless @user.microposts.empty? %>
+      <ul class="microposts">
+	<%= render @microposts %>
+      </ul>
+      <%= will_paginate @microposts %>
+      <% end %>
+    </td>
+  </tr>
+</table>
