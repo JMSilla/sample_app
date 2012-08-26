@@ -8,21 +8,38 @@ describe PagesController do
   end
 
   describe "GET 'home'" do
-    it "should be successful" do
-      get 'home'
-      response.should be_success
-    end
+
+    describe "when not signed in" do
+      before(:each) do
+        get :home
+      end
+      
+      it "should be successful" do
+        get 'home'
+        response.should be_success
+      end
     
-    it "should have the right title" do
-      get 'home'
-      response.should have_selector("title", :content => @base_title + "Home")
+      it "should have the right title" do
+        get 'home'
+        response.should have_selector("title", :content => @base_title + "Home")
+      end
     end
 
-    describe "as a signed-in user" do
+    describe "when signed_in" do
       before(:each) do
         @user = Factory(:user)
+        other_user = Factory(:user, :email => Factory.next(:email))
+        other_user.follow!(@user)
         @mp1 = Factory(:micropost, :user => @user, :content => 'Prueba1')
         test_sign_in(@user)
+      end
+
+      it "should have the right follower/following counts" do
+        get :home
+        response.should have_selector("a", :href => following_user_path(@user),
+                                      :content => "0 following")
+        response.should have_selector("a", :href => followers_user_path(@user),
+                                      :content => "1 follower")
       end
 
       it "should show the micropost count when there is only one" do
