@@ -160,7 +160,7 @@ describe User do
       @user = User.create(@attr)
       @mp1 = Factory(:micropost, :user => @user, :created_at => 1.day.ago)
       @mp2 = Factory(:micropost, :user => @user, :created_at => 1.hour.ago)
-    end
+  end
 
     it "should have a microposts attribute" do
       @user.should respond_to(:microposts)
@@ -255,6 +255,22 @@ describe User do
     it "should include the follower in the followers array" do
       @user.follow!(@followed)
       @followed.followers.should include(@user)
+    end
+
+    describe "destroying user associations" do
+      before(:each) do
+        @user.follow!(@followed)
+      end
+
+      it "should destroy association when deleting follower" do
+        @user.destroy
+        @followed.followers.should_not include(@user)
+      end
+
+      it "should destroy association when deleting followed" do
+        @followed.destroy
+        @user.following.should_not include(@followed)
+      end
     end
   end
 end
