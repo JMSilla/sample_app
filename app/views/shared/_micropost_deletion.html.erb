@@ -1,0 +1,7 @@
+  <% if current_user?(micropost.user) %>
+  <div class="delete">
+    <%= link_to "delete", micropost, :method => :delete,
+    :confirm => "You sure?",
+    :title => micropost.content %>
+  </div>
+  <% end %>

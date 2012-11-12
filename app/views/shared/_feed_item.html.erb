@@ -6,16 +6,9 @@
     <span class="user">
       <%= link_to feed_item.user.name, feed_item.user %>
     </span>
-    <span class="content"><%= wrap(feed_item.content) %></span>
-    <span class="timestamp">
-      Posted <%= time_ago_in_words(feed_item.created_at) %> ago.
-    </span>
+    <%= render :partial => 'shared/micropost_content', 
+    :locals => {:micropost => feed_item} %>
   </div>
-  <% if current_user?(feed_item.user) %>
-  <div class="delete">
-    <%= link_to "delete", feed_item, :method => :delete,
-    :confirm => "You sure?",
-    :title => feed_item.content %>
-  </div>
-  <% end %>
+  <%= render :partial => 'shared/micropost_deletion',
+  :locals => {:micropost => feed_item} %>
 </li>
