@@ -14,6 +14,8 @@ describe "Relationships" do
     it "should follow another user" do
       lambda do
         visit user_path(@user2)
+        response.should have_selector("span#followers", 
+                                      :content => '0 followers')
         click_button 'Follow'
         response.should have_selector("span#followers", 
                                       :content => '1 follower')
@@ -32,6 +34,8 @@ describe "Relationships" do
     it "should unfollow another user" do
       lambda do
         visit user_path(@user2)
+        response.should have_selector("span#followers", 
+                                      :content => '1 follower')
         click_button 'Unfollow'
         response.should have_selector("span#followers", 
                                       :content => '0 followers')

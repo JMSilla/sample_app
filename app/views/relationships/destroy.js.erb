@@ -1,5 +1,5 @@
 $("#follow_form").html("<%= escape_javascript(render('users/follow')) %>");
-$("#followers").html('<%= "#{@user.followers.count} followers" %>');
+$("#followers").html('<%= "#{pluralize(@user.followers.count, 'follower')}" %>');
 $("#followers").fadeOut(function(){
   $(this).fadeIn();
 });
